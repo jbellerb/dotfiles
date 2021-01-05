@@ -14,7 +14,7 @@ import Control.Monad (forever)
 import Data.Time.Format (defaultTimeLocale, formatTime)
 import Data.Time.LocalTime (getZonedTime)
 import System.IO (hClose, hGetLine, hPrint, stderr, stdin)
-import System.Process (runInteractiveCommand)
+import System.Process (readProcess)
 
 import Bar.APM
 
@@ -31,10 +31,10 @@ refreshXmonadInfo infoRef wake = do
 refreshTime :: TVar String -> IO () -> IO ()
 refreshTime timeRef wake = do 
     zonedTime <- getZonedTime
-    let time = formatTime defaultTimeLocale "%b. %d, %H:%M:%S" zonedTime
+    let time = formatTime defaultTimeLocale "%b. %d, %H:%M" zonedTime
     atomically $ writeTVar timeRef time
     wake
-    threadDelay 200000
+    threadDelay 1000000
     refreshTime timeRef wake
 
 refreshBattery :: TVar String -> IO () -> IO ()
@@ -49,9 +49,6 @@ refreshBattery batteryRef wake = do
 
 refreshUname :: TVar String -> IO () -> IO ()
 refreshUname unameRef wake = do 
-    (hStdin, hStdout, hStderr, _) <- runInteractiveCommand "uname -r -s"
-    hClose hStdin
-    hClose hStderr
-    uname <- hGetLine hStdout
+    uname <- init <$> readProcess "uname" ["-r", "-s"] ""
     atomically $ writeTVar unameRef uname
     wake

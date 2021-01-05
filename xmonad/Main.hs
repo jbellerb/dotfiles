@@ -4,6 +4,7 @@ import XMonad
 import XMonad.Config.Desktop
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
+import XMonad.Layout.Fullscreen
 import XMonad.Layout.NoBorders
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Spacing
@@ -21,7 +22,7 @@ import Bar
 import Bar.Lemonbar
 import qualified Colors
 
-baseConfig = desktopConfig { modMask = mod1Mask }
+baseConfig = fullscreenSupport $ desktopConfig { modMask = mod1Mask }
 
 dmenuConfig = [ "-fn", "Roboto Mono:size=14"
               , "-nb", Colors.background
