@@ -1,0 +1,6 @@
+[submodule "vim/packages/lightline"]
+	path = vim/packages/lightline
+	url = https://github.com/itchyny/lightline.vim
+[submodule "vim/packages/nord"]
+	path = vim/packages/nord
+	url = https://github.com/arcticicestudio/nord-vim

@@ -1,0 +1,30 @@
+set nocompatible
+filetype plugin indent on
+syntax enable
+
+set autoindent
+set backspace=indent,eol,start
+set complete-=i
+set smarttab
+
+set nrformats-=octal
+
+set laststatus=2
+set ruler
+set wildmenu
+set noshowmode
+
+set encoding=utf-8
+set autoread
+set history=1000
+
+if (has("termguicolors"))
+  set termguicolors
+endif
+
+if !has('gui_running')
+  set t_Co=256
+endif
+
+colorscheme nord
+let g:lightline = { 'colorscheme': 'nord' }

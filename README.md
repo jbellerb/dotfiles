@@ -8,6 +8,8 @@ Files are managed through various BSD Makefiles. To install all modules, simply 
 
 ## Dependencies
 
+- Fish: `fish`
+- Vim: `vim`, download submodules with `git submodule update`
 - Xmonad: `xmonad`, `lemonbar-xft`, [pywal](https://github.com/dylanaraps/pywal), and [Roboto Mono](https://github.com/googlefonts/RobotoMono)
 
 <br />

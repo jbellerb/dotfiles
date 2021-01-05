@@ -1,11 +1,13 @@
 .POSIX:
 
-MODULES := xmonad
+MODULES := fish vim xmonad
 
 .PHONY: all
 all: $(MODULES)
 
-.include <${MODULES:%=%/module.mk}>
+.for MODULE in ${MODULES}
+.include <${MODULE}/module.mk>
+.endfor
 
 .PHONY: clean
 clean: ${MODULES:%=clean_%}
