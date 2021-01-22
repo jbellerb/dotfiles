@@ -11,9 +11,9 @@ cabal-version: >=1.10
 library
   exposed-modules:    Bar
                       , Bar.APM
-                      , Bar.Lemonbar
                       , Bar.Modules
                       , Colors
+                      , Lemonbar
   build-tool-depends: c2hs:c2hs
   build-depends:      base >=4.12 && <4.13
                       , data-default

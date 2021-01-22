@@ -10,8 +10,8 @@ import System.Posix.IO
 import XMonad (xfork)
 import XMonad.Util.Run (spawnPipe)
 
-import Bar.Lemonbar
 import Bar.Modules
+import Lemonbar
 
 data Bar = Bar
     { barOutput :: !(String ->IO ())

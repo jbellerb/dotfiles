@@ -19,7 +19,7 @@ import System.Exit (exitSuccess)
 import System.IO
 
 import Bar
-import Bar.Lemonbar
+import Lemonbar
 import qualified Colors
 
 baseConfig = fullscreenSupport $ desktopConfig { modMask = mod1Mask }

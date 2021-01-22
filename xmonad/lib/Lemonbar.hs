@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Bar.Lemonbar
+module Lemonbar
     ( -- * Configuration args
       LemonbarConfig(..)
     , renderConfig
