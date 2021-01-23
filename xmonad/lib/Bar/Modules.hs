@@ -1,5 +1,14 @@
 {-# LANGUAGE RecordWildCards #-}
 
+{- |
+Module      :  Bar.Modules
+Copyright   :  (c) Jared Beller 2020-2021
+License     :  GPL-3.0-or-later
+
+Stability   :  experimental
+Portability :  non-portable (built for OpenBSD)
+-}
+
 module Bar.Modules
     ( refreshXmonadInfo
     , refreshTime

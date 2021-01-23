@@ -17,7 +17,7 @@ Files are managed through various BSD Makefiles. To install all modules, simply 
 #### License
 
 <sup>
-Copyright (C) Jared Beller, 2021.
+Copyright (C) Jared Beller, 2020-2021.
 </sup>
 <br />
 <sup>

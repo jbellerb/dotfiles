@@ -1,5 +1,14 @@
 {-# LANGUAGE RecordWildCards #-}
 
+{- |
+Module      :  Lemonbar
+Copyright   :  (c) Jared Beller 2020-2021
+License     :  GPL-3.0-or-later
+
+Stability   :  experimental
+Portability :  portable
+-}
+
 module Lemonbar
     ( -- * Configuration args
       LemonbarConfig(..)

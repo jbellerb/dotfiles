@@ -2,6 +2,15 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RecordWildCards #-}
 
+{- |
+Module      :  Bar.APM
+Copyright   :  (c) Jared Beller 2020-2021
+License     :  GPL-3.0-or-later
+
+Stability   :  experimental
+Portability :  non-portable (requires OpenBSD)
+-}
+
 module Bar.APM
     ( APMPowerInfo(..)
     , BatteryState(..)
