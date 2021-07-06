@@ -3,7 +3,7 @@
 {-# LANGUAGE RecordWildCards #-}
 
 {- |
-Module      :  Xresources.XRM
+Module      :  Resources.XRM
 Copyright   :  (c) Jared Beller 2021
 License     :  GPL-3.0-or-later
 
@@ -11,7 +11,7 @@ Stability   :  experimental
 Portability :  non-portable (requires OpenBSD)
 -}
 
-module Xresources.XRM
+module Resources.XRM
     ( -- * Xresources database
       XrmDatabase
     , getServerResources

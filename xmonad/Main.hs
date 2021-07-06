@@ -29,16 +29,16 @@ import System.IO
 
 import Bar
 import Lemonbar
-import Xresources
-import qualified Colors
+import Resources
+import Resources.Color
 
 baseConfig = fullscreenSupport $ desktopConfig { modMask = mod1Mask }
 
 dmenuConfig res = [ "-fn", "Roboto Mono:size=14"
-                  , "-nb", Colors.background
-                  , "-nf", Colors.color15
-                  , "-sb", Colors.color6
-                  , "-sf", Colors.background
+                  , "-nb", colorString colorBackground res
+                  , "-nf", colorString color15 res
+                  , "-sb", colorString color6 res
+                  , "-sf", colorString colorBackground res
                   , "-h", show $ dpiScale res 45 ]
 
 myTerminal = "xterm fish"
@@ -82,9 +82,9 @@ myLayoutHook res =
     delta   = 3/100
     ratio   = 1/2
 
-lemonbarLogPP barproc = lemonbarPP
+lemonbarLogPP barproc res = lemonbarPP
     { ppOutput = hPutStrLn barproc
-    , ppCurrent = lemonbarColor Colors.color6 ""
+    , ppCurrent = lemonbarColor (colorString color6 res) ""
     , ppSep = " | "
     , ppTitle = shorten 55
     , ppOrder = \(ws:_:t:_) -> [ws, t]
@@ -93,8 +93,8 @@ lemonbarLogPP barproc = lemonbarPP
 lemonbarConfig res = def
     { barHeight = dpiScale res 45
     , barFonts = ["Roboto Mono:size=14"]
-    , barBgColor = "#2E3440"
-    , barFgColor = "#D8DEE9"
+    , barBgColor = colorString colorBackground res
+    , barFgColor = colorString colorForeground res
     }
 
 main = do
@@ -102,10 +102,11 @@ main = do
     barproc <- spawnBar $ lemonbarConfig resources
     xmonad $ baseConfig
         { terminal = myTerminal
-        , normalBorderColor = Colors.background
-        , focusedBorderColor = Colors.color6
+        , normalBorderColor = colorString colorBackground resources
+        , focusedBorderColor = colorString color6 resources
         , layoutHook = myLayoutHook resources
         , manageHook = manageDocks <+> manageHook baseConfig
         , handleEventHook = handleEventHook baseConfig <+> docksEventHook
-        , logHook = dynamicLogWithPP (lemonbarLogPP barproc) >> logHook baseConfig
+        , logHook =
+            dynamicLogWithPP (lemonbarLogPP barproc resources) >> logHook baseConfig
         } `additionalKeys` myKeys (modMask baseConfig) resources

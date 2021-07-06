@@ -13,10 +13,6 @@ ${HOME}/.xmonad/${FILE}: xmonad/${FILE}
 	ln -s ${.CURDIR}/xmonad/${FILE} ${@}
 .endfor
 
-${HOME}/.xmonad/lib/Colors.hs:
-	@mkdir -p ${@D}
-	ln -s ${HOME}/.cache/wal/colors.hs ${@}
-
 .PHONY: clean_xmonad
 clean_xmonad:
 	rm -rf ${HOME}/.xmonad
