@@ -8,7 +8,7 @@ copyright:     (c) 2020-2021 Jared Beller
 author:        Jared Beller <jbellerb@vt.edu>
 maintainer:    Jared Beller <jbellerb@vt.edu>
 stability:     alpha
-tested-with:   GHC == 8.6.4
+tested-with:   GHC == 8.10.3
 synopsis:      Personal XMonad configuration
 description:   This is my personal XMonad configuration for use with OpenBSD.
                A majority of the code here is to manage Lemonbar, which is
@@ -19,7 +19,7 @@ library
   hs-source-dirs: lib
 
   build-depends:
-    base >=4.12 && <4.13,
+    base >=4.14 && <4.15,
     data-default,
     ioctl,
     process,
@@ -27,7 +27,8 @@ library
     time,
     unix,
     xmonad,
-    xmonad-contrib
+    xmonad-contrib,
+    X11
   build-tool-depends: c2hs:c2hs
 
   exposed-modules:
@@ -36,13 +37,15 @@ library
     Bar.Modules
     Colors
     Lemonbar
+    Xresources
+    Xresources.XRM
 
 executable xmonad-conf
   main-is: Main.hs
   default-language: Haskell2010
 
   build-depends:
-    base >=4.12 && <4.13,
+    base >=4.14 && <4.15,
     xmonad-conf,
     data-default,
     xmonad,

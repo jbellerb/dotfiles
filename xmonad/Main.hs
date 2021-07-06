@@ -29,20 +29,21 @@ import System.IO
 
 import Bar
 import Lemonbar
+import Xresources
 import qualified Colors
 
 baseConfig = fullscreenSupport $ desktopConfig { modMask = mod1Mask }
 
-dmenuConfig = [ "-fn", "Roboto Mono:size=14"
-              , "-nb", Colors.background
-              , "-nf", Colors.color15
-              , "-sb", Colors.color6
-              , "-sf", Colors.background
-              , "-h", "60" ]
+dmenuConfig res = [ "-fn", "Roboto Mono:size=14"
+                  , "-nb", Colors.background
+                  , "-nf", Colors.color15
+                  , "-sb", Colors.color6
+                  , "-sf", Colors.background
+                  , "-h", show $ dpiScale res 45 ]
 
 myTerminal = "xterm fish"
 
-myKeys modm =
+myKeys modm res =
     -- Terminal configured with myTerminal
     [ ((modm .|. shiftMask, xK_Return)
       , spawn myTerminal)
@@ -53,11 +54,11 @@ myKeys modm =
 
     -- Use dmenu to open programs
     , ((modm, xK_p)
-      , safeSpawn "dmenu_run" dmenuConfig)
+      , safeSpawn "dmenu_run" $ dmenuConfig')
 
     -- Exit confirmation
     , ((modm .|. shiftMask, xK_q)
-      , menuArgs "dmenu" ("-i" : dmenuConfig) [ "Cancel", "Logout" ]
+      , menuArgs "dmenu" ("-i" : dmenuConfig') [ "Cancel", "Logout" ]
         >>= (\status -> when (status == "Logout") $ io exitSuccess))
 
     -- Shrink and expand secondary panes
@@ -67,12 +68,15 @@ myKeys modm =
     -- , ((modm, xK_p)
     --   , spawn "yeganesh -x")
     ]
+  where
+    dmenuConfig' = dmenuConfig res
 
-myLayoutHook =
+myLayoutHook res =
     avoidStruts $
-    spacingRaw False (Border 15 15 15 15) True (Border 15 15 15 15) True $
+    spacingRaw False (Border b b b b) True (Border b b b b) True $
     tiled ||| Mirror tiled ||| Full
   where
+    b = fromIntegral $ dpiScale res 10
     tiled   = ResizableTall nmaster delta ratio []
     nmaster = 1
     delta   = 3/100
@@ -86,21 +90,22 @@ lemonbarLogPP barproc = lemonbarPP
     , ppOrder = \(ws:_:t:_) -> [ws, t]
     }
 
-lemonbarConfig = def
-    { barHeight = 60
+lemonbarConfig res = def
+    { barHeight = dpiScale res 45
     , barFonts = ["Roboto Mono:size=14"]
     , barBgColor = "#2E3440"
     , barFgColor = "#D8DEE9"
     }
 
 main = do
-    barproc <- spawnBar lemonbarConfig
+    resources <- currentResources
+    barproc <- spawnBar $ lemonbarConfig resources
     xmonad $ baseConfig
         { terminal = myTerminal
         , normalBorderColor = Colors.background
         , focusedBorderColor = Colors.color6
-        , layoutHook = myLayoutHook
+        , layoutHook = myLayoutHook resources
         , manageHook = manageDocks <+> manageHook baseConfig
         , handleEventHook = handleEventHook baseConfig <+> docksEventHook
         , logHook = dynamicLogWithPP (lemonbarLogPP barproc) >> logHook baseConfig
-        } `additionalKeys` myKeys (modMask baseConfig)
+        } `additionalKeys` myKeys (modMask baseConfig) resources
