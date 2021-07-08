@@ -18,24 +18,25 @@ module Bar.Modules
 
 import Control.Concurrent (threadDelay)
 import Control.Concurrent.STM (atomically, TVar, writeTVar)
-import Control.Exception
-import Control.Monad (forever)
+import Control.Exception (tryJust)
+import Control.Monad (forever, guard)
 import Data.Time.Format (defaultTimeLocale, formatTime)
 import Data.Time.LocalTime (getZonedTime)
-import System.IO (hClose, hGetLine, hPrint, stderr, stdin)
+import System.Exit (exitSuccess)
+import System.IO.Error (isEOFError)
 import System.Process (readProcess)
 
 import Bar.APM
 
 refreshXmonadInfo :: TVar String -> IO () -> IO ()
 refreshXmonadInfo infoRef wake = do 
-    info <- catch getLine $
-        \(SomeException e) -> do
-            hPrint stderr e
-            return ""
-    atomically $ writeTVar infoRef info
-    wake
-    refreshXmonadInfo infoRef wake
+    r <- tryJust (guard . isEOFError) getLine
+    case r of
+        Left _ -> exitSuccess
+        Right info -> do
+            atomically $ writeTVar infoRef info
+            wake
+            refreshXmonadInfo infoRef wake
 
 refreshTime :: TVar String -> IO () -> IO ()
 refreshTime timeRef wake = do 

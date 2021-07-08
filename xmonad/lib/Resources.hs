@@ -34,7 +34,7 @@ currentResources = do
     dpy <- openDisplay ""
     db <- fromJust <$> getServerResources dpy
     Resources
-        <$> maybe 96 read <$> queryResources db "Xft.dpi"
+        <$> fmap (maybe 96 read) (queryResources db "Xft.dpi")
         <*> queryScheme db
 
 dpiScale :: Resources -> Int -> Int

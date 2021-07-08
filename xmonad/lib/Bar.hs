@@ -11,9 +11,11 @@ Portability :  non-portable (built for OpenBSD)
 
 module Bar (spawnBar) where
 
-import Control.Concurrent (forkIO, newEmptyMVar, MVar, putMVar, takeMVar)
+import Control.Concurrent (newEmptyMVar, MVar, putMVar, takeMVar)
+import Control.Concurrent.Async (Concurrently(..), runConcurrently)
 import Control.Concurrent.STM (atomically, newTVar, readTVarIO, TVar, writeTVar)
-import Control.Monad (forever)
+import Control.Monad (forever, void)
+import Data.Foldable (traverse_)
 import System.IO (BufferMode(..), Handle, hPutStrLn, hSetBuffering)
 import System.Posix.IO
 import XMonad (xfork)
@@ -57,11 +59,18 @@ runBar lemonbarConfig = do
     barUname <- atomically $ newTVar ""
     let bar = Bar { barOutput = hPutStrLn lbproc, .. }
         waker = putMVar barWaker ()
-    _ <- forkIO $ refreshXmonadInfo barXmonadInfo waker
-    _ <- forkIO $ refreshTime barTime waker
-    _ <- forkIO $ refreshBattery barBattery waker
-    _ <- forkIO $ refreshUname barUname waker
-    forever $ do
+        modules =
+            [ (refreshXmonadInfo, barXmonadInfo)
+            , (refreshTime, barTime)
+            , (refreshBattery, barBattery)
+            , (refreshUname, barUname)
+            ]
+    runConcurrently $ void $ (,)
+        <$> traverse_ (spawnModule waker) modules
+        <*> Concurrently (listener barWaker bar)
+  where
+    spawnModule waker (mod, info) = Concurrently $ mod info waker
+    listener barWaker bar = forever $ do
         _ <- takeMVar barWaker
         barRefresh bar
 

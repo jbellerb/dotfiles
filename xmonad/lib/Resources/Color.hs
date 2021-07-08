@@ -1,5 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
-
 {- |
 Module      :  Resources.Color
 Copyright   :  (c) Jared Beller 2021
