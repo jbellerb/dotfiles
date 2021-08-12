@@ -23,7 +23,7 @@ module Lemonbar
 import Data.Default (def, Default)
 import System.IO (Handle)
 import XMonad (MonadIO)
-import XMonad.Hooks.DynamicLog (PP, ppTitleSanitize, wrap)
+import XMonad.Hooks.StatusBar.PP (PP, ppTitleSanitize, wrap)
 import XMonad.Util.Run (spawnPipe)
 
 data LemonbarConfig = LemonbarConfig
@@ -59,18 +59,18 @@ instance Default LemonbarConfig where
         , barUlColor = ""
         }
 
-renderConfig :: LemonbarConfig -> String
+renderConfig :: LemonbarConfig -> [String]
 renderConfig LemonbarConfig{..} = concat
-    [ " -g " ++ geometry
-    , if barBottom then " -b" else ""
-    , if barForceDocking then " -d" else ""
-    , concatMap (\x -> " -f " ++ show x) barFonts
-    , if barClickables == -1 then "" else " -a " ++ show barClickables
-    , if null barName then "" else " -n " ++ show barName
-    , if barUnderlineWidth == -1 then "" else " -u " ++ show barUnderlineWidth
-    , if null barBgColor then "" else " -B " ++ show barBgColor
-    , if null barFgColor then "" else " -F " ++ show barFgColor
-    , if null barUlColor then "" else " -U " ++ show barUlColor
+    [ ["-g", geometry]
+    , ["-b" | barBottom]
+    , ["-d" | barForceDocking]
+    , concatMap (\font -> ["-f", font]) barFonts
+    , if barClickables == -1 then [] else ["-a", show barClickables]
+    , if null barName then [] else ["-n", barName]
+    , if barUnderlineWidth == -1 then [] else ["-u", show barUnderlineWidth]
+    , if null barBgColor then [] else ["-B", barBgColor]
+    , if null barFgColor then [] else ["-F", barFgColor]
+    , if null barUlColor then [] else ["-U", barUlColor]
     ]
   where
     geometry =

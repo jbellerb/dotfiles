@@ -3,9 +3,7 @@
 XMONAD_FILES != find xmonad -type f ! -name "module.mk"
 
 .PHONY: xmonad
-xmonad: \
-  ${XMONAD_FILES:xmonad/%=${HOME}/.xmonad/%} \
-  ${HOME}/.xmonad/lib/Colors.hs
+xmonad: ${XMONAD_FILES:xmonad/%=${HOME}/.xmonad/%}
 
 .for FILE in ${XMONAD_FILES:xmonad/%=%}
 ${HOME}/.xmonad/${FILE}: xmonad/${FILE}

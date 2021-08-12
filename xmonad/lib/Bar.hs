@@ -9,17 +9,22 @@ Stability   :  experimental
 Portability :  non-portable (built for OpenBSD)
 -}
 
-module Bar (spawnBar) where
+module Bar (statusBar) where
 
 import Control.Concurrent (newEmptyMVar, MVar, putMVar, takeMVar)
 import Control.Concurrent.Async (Concurrently(..), runConcurrently)
 import Control.Concurrent.STM (atomically, newTVar, readTVarIO, TVar, writeTVar)
 import Control.Monad (forever, void)
+import Control.Monad.IO.Class (liftIO)
 import Data.Foldable (traverse_)
-import System.IO (BufferMode(..), Handle, hPutStrLn, hSetBuffering)
+import Data.IORef (newIORef, readIORef, writeIORef)
+import System.Environment (getArgs, getExecutablePath)
+import System.IO
 import System.Posix.IO
-import XMonad (xfork)
-import XMonad.Util.Run (spawnPipe)
+import System.Posix.Process (executeFile)
+import XMonad (X, xfork)
+import XMonad.Hooks.StatusBar (StatusBarConfig(..))
+import XMonad.Hooks.StatusBar.PP (dynamicLogString, PP)
 
 import Bar.Modules
 import Lemonbar
@@ -38,7 +43,7 @@ layoutSections left center right =
     concat ["%{l}", left, "%{c}", center, "%{r}", right] 
 
 barRefresh :: Bar -> IO ()
-barRefresh bar@Bar{..} = do
+barRefresh Bar{..} = do
     info <- readTVarIO barXmonadInfo
     time <- readTVarIO barTime
     battery <- readTVarIO barBattery
@@ -51,7 +56,7 @@ barRefresh bar@Bar{..} = do
 
 runBar :: LemonbarConfig -> IO ()
 runBar lemonbarConfig = do
-    lbproc <- spawnPipe $ "lemonbar-xft" ++ renderConfig lemonbarConfig
+    lbproc <- spawnFilePipe "lemonbar-xft" $ renderConfig lemonbarConfig
     barWaker <- newEmptyMVar
     barXmonadInfo <- atomically $ newTVar ""
     barTime <- atomically $ newTVar ""
@@ -74,14 +79,37 @@ runBar lemonbarConfig = do
         _ <- takeMVar barWaker
         barRefresh bar
 
-spawnBar :: LemonbarConfig -> IO Handle
-spawnBar lemonbarConfig = do
+spawnFilePipe :: FilePath -> [String] -> IO Handle
+spawnFilePipe path args = do
     (rd, wr) <- createPipe
     setFdOption wr CloseOnExec True
     h <- fdToHandle wr
+    hSetEncoding h localeEncoding
     hSetBuffering h LineBuffering
-    _ <- xfork $ do
-          _ <- dupTo rd stdInput
-          runBar lemonbarConfig
+    void $ xfork $ do
+        void $ dupTo rd stdInput
+        executeFile path True args Nothing
     closeFd rd
     return h
+
+statusBar :: LemonbarConfig -> X PP -> IO StatusBarConfig
+statusBar conf xpp = do
+    args <- getArgs
+    case args of
+        ["-B"] -> runBar conf
+        _ -> return ()
+    hRef <- newIORef Nothing
+    return $ StatusBarConfig
+        { sbStartupHook = liftIO $ do
+            h <- flip spawnFilePipe ["-B"] =<< getExecutablePath
+            writeIORef hRef $ Just h
+        , sbLogHook = do
+            pp <- xpp
+            msg <- dynamicLogString pp
+            liftIO $ do
+                h' <- readIORef hRef
+                maybe (return ()) (`hPutStrLn` msg) h'
+        , sbCleanupHook = liftIO $ do
+            h' <- readIORef hRef
+            maybe (return ()) (\h -> hClose h >> writeIORef hRef Nothing) h'
+        }

@@ -14,12 +14,15 @@ module Resources
 
       -- * Resources utilities
     , dpiScale
-    , colorString
+    , opaqueColor
+    , transparentColor
     ) where
 
-import Data.Colour.SRGB (sRGB24show)
+import Data.Colour.SRGB (RGB(..), sRGB24show, toSRGB24)
 import Data.Maybe (fromJust)
+import Data.Word (Word8)
 import Graphics.X11.Xlib.Display (openDisplay)
+import Numeric (showHex)
 
 import Resources.Color
 import Resources.XRM
@@ -40,5 +43,13 @@ currentResources = do
 dpiScale :: Resources -> Int -> Int
 dpiScale res n = div (n * resDPI res) 96
 
-colorString :: (ColorScheme -> Color) -> Resources -> String
-colorString row = sRGB24show . row . resColors
+opaqueColor :: (ColorScheme -> Color) -> Resources -> String
+opaqueColor row = sRGB24show . row . resColors
+
+transparentColor :: (ColorScheme -> Color) -> Word8 -> Resources -> String
+transparentColor row a res = ("#" ++) . foldMap showHex2 [a, r, g, b] $ ""
+  where
+    RGB r g b = toSRGB24 $ row $ resColors res
+    showHex2 x
+      | x <= 0x0f = ("0" ++) . showHex x
+      | otherwise = showHex x

@@ -11,9 +11,10 @@ module Main where
 
 import XMonad
 import XMonad.Config.Desktop
-import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
-import XMonad.Layout.Fullscreen
+import XMonad.Hooks.StatusBar
+import XMonad.Hooks.StatusBar.PP
 import XMonad.Layout.NoBorders
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Spacing
@@ -32,13 +33,13 @@ import Lemonbar
 import Resources
 import Resources.Color
 
-baseConfig = fullscreenSupport $ desktopConfig { modMask = mod1Mask }
+baseConfig = def { modMask = mod1Mask }
 
 dmenuConfig res = [ "-fn", "Roboto Mono:size=14"
-                  , "-nb", colorString colorBackground res
-                  , "-nf", colorString color15 res
-                  , "-sb", colorString color6 res
-                  , "-sf", colorString colorBackground res
+                  , "-nb", opaqueColor colorBackground res
+                  , "-nf", opaqueColor color15 res
+                  , "-sb", opaqueColor color6 res
+                  , "-sf", opaqueColor colorBackground res
                   , "-h", show $ dpiScale res 45 ]
 
 myTerminal = "xterm fish"
@@ -50,11 +51,11 @@ myKeys modm res =
 
     -- Lock screen
     , ((modm .|. shiftMask, xK_p)
-      , spawn "xlock")
+      , safeSpawn "xlock" [])
 
     -- Use dmenu to open programs
     , ((modm, xK_p)
-      , safeSpawn "dmenu_run" $ dmenuConfig')
+      , safeSpawn "dmenu_run" dmenuConfig')
 
     -- Exit confirmation
     , ((modm .|. shiftMask, xK_q)
@@ -64,6 +65,7 @@ myKeys modm res =
     -- Shrink and expand secondary panes
     , ((modm .|. shiftMask, xK_h), sendMessage MirrorShrink)
     , ((modm .|. shiftMask, xK_l), sendMessage MirrorExpand)
+
     -- -- Use yeganesh to open programs
     -- , ((modm, xK_p)
     --   , spawn "yeganesh -x")
@@ -82,9 +84,14 @@ myLayoutHook res =
     delta   = 3/100
     ratio   = 1/2
 
-lemonbarLogPP barproc res = lemonbarPP
-    { ppOutput = hPutStrLn barproc
-    , ppCurrent = lemonbarColor (colorString color6 res) ""
+myManageHook = composeAll
+    [ className =? "Xmessage" --> doFloat
+    , className =? "Firefox" <&&> stringProperty "WM_NAME" =? "Picture-in-Picture" --> doFloat
+    , manageDocks
+    ]
+
+lemonbarLogPP res = lemonbarPP
+    { ppCurrent = lemonbarColor (opaqueColor color6 res) ""
     , ppSep = " | "
     , ppTitle = shorten 55
     , ppOrder = \(ws:_:t:_) -> [ws, t]
@@ -93,20 +100,17 @@ lemonbarLogPP barproc res = lemonbarPP
 lemonbarConfig res = def
     { barHeight = dpiScale res 45
     , barFonts = ["Roboto Mono:size=14"]
-    , barBgColor = colorString colorBackground res
-    , barFgColor = colorString colorForeground res
+    , barBgColor = opaqueColor colorBackground res
+    , barFgColor = opaqueColor colorForeground res
     }
 
 main = do
-    resources <- currentResources
-    barproc <- spawnBar $ lemonbarConfig resources
-    xmonad $ baseConfig
+    res <- currentResources
+    mySB <- statusBar (lemonbarConfig res) (pure $ lemonbarLogPP res)
+    xmonad $ withSB mySB $ ewmhFullscreen $ docks baseConfig
         { terminal = myTerminal
-        , normalBorderColor = colorString colorBackground resources
-        , focusedBorderColor = colorString color6 resources
-        , layoutHook = myLayoutHook resources
-        , manageHook = manageDocks <+> manageHook baseConfig
-        , handleEventHook = handleEventHook baseConfig <+> docksEventHook
-        , logHook =
-            dynamicLogWithPP (lemonbarLogPP barproc resources) >> logHook baseConfig
-        } `additionalKeys` myKeys (modMask baseConfig) resources
+        , normalBorderColor = opaqueColor colorBackground res
+        , focusedBorderColor = opaqueColor color6 res
+        , layoutHook = myLayoutHook res
+        , manageHook = myManageHook <+> manageHook baseConfig
+        } `additionalKeys` myKeys (modMask baseConfig) res
