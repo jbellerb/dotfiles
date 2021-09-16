@@ -1,16 +1,16 @@
 .POSIX:
 
-XMONAD_FILES != find xmonad -type f ! -name "module.mk"
+XMONAD_FILES = build cabal.project xmonad-conf.cabal lib Main.hs
 
 .PHONY: xmonad
-xmonad: ${XMONAD_FILES:xmonad/%=${HOME}/.xmonad/%}
+xmonad: ${XMONAD_FILES:%=${HOME}/.config/xmonad/%}
 
-.for FILE in ${XMONAD_FILES:xmonad/%=%}
-${HOME}/.xmonad/${FILE}: xmonad/${FILE}
+.for FILE in ${XMONAD_FILES}
+${HOME}/.config/xmonad/${FILE}: xmonad/${FILE}
 	@mkdir -p ${@D}
 	ln -s ${.CURDIR}/xmonad/${FILE} ${@}
 .endfor
 
 .PHONY: clean_xmonad
 clean_xmonad:
-	rm -rf ${HOME}/.xmonad
+	rm -rf ${HOME}/.config/xmonad

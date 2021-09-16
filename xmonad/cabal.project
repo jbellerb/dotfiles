@@ -10,3 +10,6 @@ source-repository-package
   type: git
   location: https://github.com/xmonad/xmonad-contrib
   tag: 8fab38072489af3afff6c47922a403c3806d7514
+
+executable-stripping: True
+optimization: True
