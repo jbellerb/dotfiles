@@ -4,3 +4,6 @@
 [submodule "vim/packages/nord"]
 	path = vim/packages/nord
 	url = https://github.com/arcticicestudio/nord-vim
+[submodule "fish/plugins/fenv"]
+	path = fish/plugins/fenv
+	url = https://github.com/oh-my-fish/plugin-foreign-env.git
