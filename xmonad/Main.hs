@@ -74,7 +74,7 @@ myKeys modm res =
     dmenuConfig' = dmenuConfig res
 
 myLayoutHook res =
-    avoidStruts $
+    smartBorders $ avoidStruts $
     spacingRaw False (Border b b b b) True (Border b b b b) True $
     tiled ||| Mirror tiled ||| Full
   where
@@ -86,6 +86,7 @@ myLayoutHook res =
 
 myManageHook = composeAll
     [ className =? "Xmessage" --> doFloat
+    , className =? "pinentry-qt" --> doFloat
     , className =? "Firefox" <&&> stringProperty "WM_NAME" =? "Picture-in-Picture" --> doFloat
     , manageDocks
     ]
