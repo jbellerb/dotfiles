@@ -108,7 +108,7 @@ lemonbarConfig res = def
 main = do
     res <- currentResources
     mySB <- statusBar (lemonbarConfig res) (pure $ lemonbarLogPP res)
-    xmonad $ withSB mySB $ ewmhFullscreen $ docks baseConfig
+    xmonad $ withSB mySB $ ewmh $ ewmhFullscreen $ docks baseConfig
         { terminal = myTerminal
         , normalBorderColor = opaqueColor colorBackground res
         , focusedBorderColor = opaqueColor color6 res
