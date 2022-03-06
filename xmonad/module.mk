@@ -1,6 +1,6 @@
 .POSIX:
 
-XMONAD_FILES = build cabal.project xmonad-conf.cabal lib Main.hs
+XMONAD_FILES = build cabal.project xmonad-conf xmonad-bar
 
 .PHONY: xmonad
 xmonad: ${XMONAD_FILES:%=${HOME}/.config/xmonad/%}

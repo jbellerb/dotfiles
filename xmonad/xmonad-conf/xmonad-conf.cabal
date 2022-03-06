@@ -1,14 +1,14 @@
 cabal-version: 2.2
 name:          xmonad-conf
-version:       0.1.0
+version:       0.1.1
 build-type:    Simple
 license:       GPL-3.0-or-later
-license-file:  ../LICENSE
-copyright:     (c) 2020-2021 Jared Beller
+license-file:  ../../LICENSE
+copyright:     (c) 2020-2022 Jared Beller
 author:        Jared Beller <jbellerb@vt.edu>
 maintainer:    Jared Beller <jbellerb@vt.edu>
 stability:     alpha
-tested-with:   GHC == 8.10.3
+tested-with:   GHC == 8.10.6
 synopsis:      Personal XMonad configuration
 description:   This is my personal XMonad configuration for use with OpenBSD.
                A majority of the code here is to manage Lemonbar, which is
@@ -16,28 +16,18 @@ description:   This is my personal XMonad configuration for use with OpenBSD.
 
 library
   default-language: Haskell2010
-  hs-source-dirs: lib
+  hs-source-dirs: src
 
   build-depends:
     base >=4.14 && <4.15,
-    async,
     colour,
     data-default,
-    ioctl,
-    process,
-    stm,
-    time,
-    unix,
     xmonad,
     xmonad-contrib,
     X11
   build-tool-depends: c2hs:c2hs
 
   exposed-modules:
-    Bar
-    Bar.APM
-    Bar.Modules
-    Lemonbar
     Resources
     Resources.Color
     Resources.XRM
@@ -45,9 +35,11 @@ library
 executable xmonad-conf
   main-is: Main.hs
   default-language: Haskell2010
+  hs-source-dirs: app
 
   build-depends:
     base >=4.14 && <4.15,
+    xmonad-bar,
     xmonad-conf,
     data-default,
     xmonad,

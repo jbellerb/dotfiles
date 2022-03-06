@@ -29,7 +29,7 @@ import System.Process (readProcess)
 import Bar.APM
 
 refreshXmonadInfo :: TVar String -> IO () -> IO ()
-refreshXmonadInfo infoRef wake = do 
+refreshXmonadInfo infoRef wake = do
     r <- tryJust (guard . isEOFError) getLine
     case r of
         Left _ -> exitSuccess
@@ -39,7 +39,7 @@ refreshXmonadInfo infoRef wake = do
             refreshXmonadInfo infoRef wake
 
 refreshTime :: TVar String -> IO () -> IO ()
-refreshTime timeRef wake = do 
+refreshTime timeRef wake = do
     zonedTime <- getZonedTime
     let time = formatTime defaultTimeLocale "%b. %d, %H:%M" zonedTime
     atomically $ writeTVar timeRef time
@@ -58,7 +58,7 @@ refreshBattery batteryRef wake = do
     refreshBattery batteryRef wake
 
 refreshUname :: TVar String -> IO () -> IO ()
-refreshUname unameRef wake = do 
+refreshUname unameRef wake = do
     uname <- init <$> readProcess "uname" ["-r", "-s"] ""
     atomically $ writeTVar unameRef uname
     wake

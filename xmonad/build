@@ -4,7 +4,7 @@ set -e
 
 output=$1; shift
 
-cabal new-build
+cabal new-build all
 
 find dist-newstyle -type f -name xmonad-conf \
     -exec cp '{}' $output ';'

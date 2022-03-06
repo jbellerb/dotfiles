@@ -22,7 +22,6 @@ module Lemonbar
 
 import Data.Default (def, Default)
 import System.IO (Handle)
-import XMonad (MonadIO)
 import XMonad.Hooks.StatusBar.PP (PP, ppTitleSanitize, wrap)
 import XMonad.Util.Run (spawnPipe)
 

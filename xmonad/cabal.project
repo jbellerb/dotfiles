@@ -1,5 +1,6 @@
 packages:
-  xmonad-conf.cabal
+  xmonad-conf/
+  xmonad-bar/
 
 executable-stripping: True
 optimization: True
