@@ -21,18 +21,20 @@ module Resources.XRM
     ) where
 
 import Foreign (alloca, peek, Storable)
-import Foreign.C.String (CString, peekCString, withCString)
-import Foreign.Ptr (IntPtr, intPtrToPtr, Ptr, ptrToIntPtr, nullPtr)
+import Foreign.C.String (CString, peekCString)
+import Foreign.Ptr (castPtr, nullPtr)
 import Graphics.X11.Xlib (Display(..))
 
 #include <X11/Xresource.h>
 
-{#pointer *XrmDatabase newtype #}
+{#pointer *Display newtype nocode #}
+
+{#pointer XrmDatabase newtype #}
     deriving (Eq, Show)
 
 data XrmValue = XrmValue
     { xrmValueSize :: Word
-    , xrmValueAddr :: IntPtr
+    , xrmValueAddr :: CString
     } deriving (Show)
 
 instance Storable XrmValue where
@@ -42,40 +44,37 @@ instance Storable XrmValue where
     peek p = do
         size <- {#get XrmValue->size #} p
         addr <- {#get XrmValue->addr #} p
-        return $ XrmValue
-            (fromIntegral size)
-            (ptrToIntPtr addr)
+        return $ XrmValue (fromIntegral size) addr
  
     poke p XrmValue{..} = do
         {#set XrmValue.size #} p $ fromIntegral xrmValueSize
-        {#set XrmValue.addr #} p $ intPtrToPtr xrmValueAddr
+        {#set XrmValue.addr #} p xrmValueAddr
 
 getServerResources :: Display -> IO (Maybe XrmDatabase)
-getServerResources dpy = makeDatabase =<< xResourceManagerString dpy
-  where
-    makeDatabase s
-      | s == nullPtr = return Nothing
-      | otherwise = do
+getServerResources dpy = do
+    s <- xResourceManagerString dpy
+    if s == nullPtr
+        then return Nothing
+        else do
           db <- xrmGetStringDatabase s
           return $ if db == XrmDatabase nullPtr
               then Nothing
               else Just db
-foreign import ccall unsafe "XResourceManagerString"
-    xResourceManagerString :: Display -> IO CString
-foreign import ccall unsafe "XrmGetStringDatabase"
-    xrmGetStringDatabase :: CString -> IO XrmDatabase
+
+{# fun XResourceManagerString as ^ { `Display' } -> `CString' #}
+{# fun XrmGetStringDatabase as ^ { `CString' } -> `XrmDatabase' #}
 
 queryResources :: XrmDatabase -> String -> IO (Maybe String)
-queryResources db key =
-    withCString key $ \key' ->
-    alloca $ \rType' ->
-    alloca $ \rValue' -> do
-        resource <- xrmGetResource db key' key' rType' rValue'
-        if resource
-            then do
-                rValue <- peek rValue'
-                Just <$> (peekCString . intPtrToPtr . xrmValueAddr) rValue
-            else return Nothing
-foreign import ccall unsafe "XrmGetResource"
-    xrmGetResource ::
-        XrmDatabase -> CString -> CString -> Ptr CString -> Ptr XrmValue -> IO Bool
+queryResources db key = do
+    (resource, _, XrmValue{..}) <- xrmGetResource db key key
+    if resource
+        then Just <$> peekCString xrmValueAddr
+        else return Nothing
+
+{# fun XrmGetResource as ^
+    { `XrmDatabase'
+    , `String'
+    , `String'
+    , alloca- `CString' peek*
+    , alloca- `XrmValue' 'peek . castPtr'*
+    } -> `Bool' #}

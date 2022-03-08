@@ -28,6 +28,10 @@ import System.Process (readProcess)
 
 import Bar.APM
 
+-- TODO: generic class for modules
+-- class Module a where
+--     a
+
 refreshXmonadInfo :: TVar String -> IO () -> IO ()
 refreshXmonadInfo infoRef wake = do
     r <- tryJust (guard . isEOFError) getLine
