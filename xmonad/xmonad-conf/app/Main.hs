@@ -19,8 +19,8 @@ import XMonad.Layout.NoBorders
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Spacing
 import XMonad.Util.Dmenu (menuArgs)
-import XMonad.Util.Run (safeSpawn, spawnPipe)
 import XMonad.Util.EZConfig (additionalKeys)
+import XMonad.Util.Run (safeSpawn, spawnPipe)
 
 import Control.Monad (when)
 import Data.Default (def)
@@ -35,12 +35,14 @@ import Resources.Color
 
 baseConfig = def { modMask = mod1Mask }
 
-dmenuConfig res = [ "-fn", "Roboto Mono:size=14"
-                  , "-nb", opaqueColor colorBackground res
-                  , "-nf", opaqueColor color15 res
-                  , "-sb", opaqueColor color6 res
-                  , "-sf", opaqueColor colorBackground res
-                  , "-h", show $ dpiScale res 45 ]
+dmenuConfig res =
+    [ "-fn", "Roboto Mono:size=14"
+    , "-nb", opaqueColor colorBackground res
+    , "-nf", opaqueColor color15 res
+    , "-sb", opaqueColor color6 res
+    , "-sf", opaqueColor colorBackground res
+    , "-h", show $ dpiScale res 45
+    ]
 
 myTerminal = "xterm fish"
 
@@ -79,15 +81,15 @@ myLayoutHook res =
     tiled ||| Mirror tiled ||| Full
   where
     b = fromIntegral $ dpiScale res 10
-    tiled   = ResizableTall nmaster delta ratio []
+    tiled = ResizableTall nmaster delta ratio []
     nmaster = 1
-    delta   = 3/100
-    ratio   = 1/2
+    delta = 3/100
+    ratio = 1/2
 
 myManageHook = composeAll
     [ className =? "Xmessage" --> doFloat
     , className =? "pinentry-qt" --> doFloat
-    , className =? "Firefox" <&&> stringProperty "WM_NAME" =? "Picture-in-Picture" --> doFloat
+    , stringProperty "WM_NAME" =? "Picture-in-Picture" --> doFloat
     , manageDocks
     ]
 
