@@ -35,25 +35,32 @@ data GraphicsContext = GraphicsContext
     { contextDisplay :: Display
     , contextWindow :: Window
     , contextPixmap :: Drawable
+    , contextGeometry :: Rect
     , contextSurface :: Surface
     , contextCairo :: Cairo
     }
 
-initWindow :: IO GraphicsContext
-initWindow = do
+initWindow :: Int -> Int -> Int -> Int -> IO GraphicsContext
+initWindow x y w h = do
     dpy <- openDisplay ""
-    (win, vis) <- newWindow dpy geometry
+    let geo = resolveGeometry dpy x y w h
+    (win, vis) <- newWindow dpy geo
     setWindowProperties dpy win
-    pix <- newPixmap dpy win vis
-    sfc <- cairoXlibSurfaceCreate dpy pix (visualInfo_visual vis)
-        (rectW geometry) (rectH geometry)
-    ctx <- cairoCreate sfc
+    (pix, sfc, ctx) <- initCairo dpy win vis
     clearWindow dpy win
     mapWindow dpy win
     flush dpy
-    return $ GraphicsContext dpy win pix sfc ctx
+    return $ GraphicsContext dpy win pix geo sfc ctx
+
+resolveGeometry :: Display -> Int -> Int -> Int -> Int -> Rect
+resolveGeometry dpy x y w h = Rect
+    { rectX = fromIntegral x
+    , rectY = fromIntegral y
+    , rectW = if w < 0 then widthOfScreen scr else fromIntegral w
+    , rectH = if h < 0 then heightOfScreen scr else fromIntegral h
+    }
   where
-    geometry = Rect 0 0 100 100
+    scr = defaultScreenOfDisplay dpy
 
 newWindow :: Display -> Rect -> IO (Window, VisualInfo)
 newWindow dpy Rect{..} = do
@@ -96,10 +103,13 @@ setWindowProperties dpy win = do
     storeName dpy win "bar"
     setClassHint dpy win $ ClassHint "xmonad-bar" "bar"
 
-newPixmap :: Display -> Window -> VisualInfo -> IO Pixmap
-newPixmap dpy win VisualInfo{..} = do
+initCairo :: Display -> Window -> VisualInfo -> IO (Pixmap, Surface, Cairo)
+initCairo dpy win VisualInfo{..} = do
     (_, x, y, w, h, _, _) <- getGeometry dpy win
-    createPixmap dpy win w h visualInfo_depth
+    pixmap <- createPixmap dpy win w h visualInfo_depth
+    surface <- cairoXlibSurfaceCreate dpy pixmap visualInfo_visual w h
+    cairo <- cairoCreate surface
+    return (pixmap, surface, cairo)
 
 closeWindow :: GraphicsContext -> IO ()
 closeWindow GraphicsContext{..} = do

@@ -9,59 +9,67 @@ Stability   :  experimental
 Portability :  portable
 -}
 
-module BarExperimental (barMain) where
+module BarExperimental (BarConfig(..), barMain) where
 
 import Control.Concurrent (threadDelay)
 import Control.Exception (bracket)
-import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Reader (asks, runReaderT)
+import Control.Monad.IO.Class (liftIO, MonadIO)
+import Control.Monad.Reader (asks)
 import Graphics.Rendering.Cairo
-import Graphics.Rendering.Cairo.Internal (Render(..))
-import Graphics.Rendering.Cairo.Types (Cairo)
-import Graphics.X11.Xlib (clearWindow, flush, setWindowBackgroundPixmap)
 import Graphics.X11.Xlib.Misc (initThreads)
-import System.Exit (exitWith, ExitCode(..))
+import System.Exit (exitSuccess)
 
-import Bar.App.Env
-import Bar.App.Monad
-import Bar.X11.Window (closeWindow, GraphicsContext(..), initWindow)
+import Bar.App.Env (Env(..))
+import Bar.App.Monad (App, runApp)
+import Bar.X11.Draw (clear, MonadDraw, render)
+import Bar.X11.Window (closeWindow, GraphicsContext(..), initWindow, Rect(..))
 
-loop :: App ()
-loop = do
-    drawCairo $ do
-        setOperator OperatorClear
-        paint
-        setOperator OperatorAdd
+data BarConfig = BarConfig
+    { barWidth :: Int
+    , barHeight :: Int
+    , barX :: Int
+    , barY :: Int
+    , barFont :: String
+    , barName :: String
+    , barBgColor :: String
+    , barFgColor :: String
+    }
+
+loop :: (MonadDraw m, MonadIO m) => Rect -> m ()
+loop Rect{..} = do
+    -- renderLayout $
+    render $ do
+        clear
         setSourceRGB 1 1 0
         setLineWidth 10
         setLineCap LineCapRound
         setLineJoin LineJoinRound
-        moveTo 30 30
-        lineTo 70 30
-        lineTo 70 70
-        lineTo 30 70
-        lineTo 30 30
+        moveTo 10 10
+        lineTo (w - 10) 10
+        lineTo (w - 10) (h - 10)
+        lineTo 10 (h - 10)
+        lineTo 10 10
         stroke
     liftIO $ threadDelay (10 * 1000000)
   where
-    drawCairo :: Render () -> App ()
-    drawCairo (Render m) = do
-        GraphicsContext{..} <- asks envContext
-        liftIO $ do
-            runReaderT m contextCairo
-            surfaceFlush contextSurface
-            setWindowBackgroundPixmap contextDisplay contextWindow contextPixmap
-            clearWindow contextDisplay contextWindow
-            flush contextDisplay
+    x = fromIntegral rectX
+    y = fromIntegral rectY
+    w = fromIntegral rectW
+    h = fromIntegral rectH
 
-mkEnv :: IO Env
-mkEnv = Env <$> initWindow
+mkEnv :: BarConfig -> IO Env
+mkEnv cfg = Env <$> initWindow x y w h
+  where
+    x = barX cfg
+    y = barY cfg
+    w = barWidth cfg
+    h = barHeight cfg
 
 cleanEnv :: Env -> IO ()
 cleanEnv Env{envContext = ctx} = closeWindow ctx
 
-barMain :: IO ()
-barMain = do
+barMain :: BarConfig -> IO ()
+barMain cfg = do
     initThreads
-    bracket mkEnv cleanEnv (\env -> runApp env loop)
-    exitWith ExitSuccess
+    bracket (mkEnv cfg) cleanEnv (`runApp` (asks (contextGeometry . envContext) >>= loop))
+    exitSuccess

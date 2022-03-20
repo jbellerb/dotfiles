@@ -41,6 +41,7 @@ library
     Bar.App.Monad
     Bar.Modules
     Bar.X11.Cairo
+    Bar.X11.Draw
     Bar.X11.Window
     BarExperimental
     Lemonbar
