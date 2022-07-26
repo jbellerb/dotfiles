@@ -40,7 +40,7 @@ data Bar = Bar
 
 layoutSections :: String -> String -> String -> String
 layoutSections left center right =
-    concat ["%{l}", left, "%{c}", center, "%{r}", right] 
+    concat ["%{l}", left, "%{c}", center, "%{r}", right]
 
 barRefresh :: Bar -> IO ()
 barRefresh Bar{..} = do

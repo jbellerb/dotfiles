@@ -45,7 +45,7 @@ instance Storable XrmValue where
         size <- {#get XrmValue->size #} p
         addr <- {#get XrmValue->addr #} p
         return $ XrmValue (fromIntegral size) addr
- 
+
     poke p XrmValue{..} = do
         {#set XrmValue.size #} p $ fromIntegral xrmValueSize
         {#set XrmValue.addr #} p xrmValueAddr
