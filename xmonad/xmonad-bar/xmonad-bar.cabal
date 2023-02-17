@@ -8,7 +8,7 @@ copyright:     (c) 2020-2022 Jared Beller
 author:        Jared Beller <jbellerb@vt.edu>
 maintainer:    Jared Beller <jbellerb@vt.edu>
 stability:     alpha
-tested-with:   GHC == 8.10.6
+tested-with:   GHC == 9.2.5
 synopsis:      Personal bar for XMonad configuration
 description:   This library provides an interface to control Lemonbar directly
                from XMonad, using Haskell instead of shell scripts.

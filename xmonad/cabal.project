@@ -2,10 +2,5 @@ packages:
   xmonad-conf/
   xmonad-bar/
 
-executable-stripping: False
-optimization: False
-
-source-repository-package
-  type: git
-  location: https://github.com/geekosaur/xmonad
-  tag: 31f62325f0af86353766ef31d6b876dc92806607
+executable-stripping: True
+optimization: True

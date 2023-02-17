@@ -8,7 +8,7 @@ copyright:     (c) 2020-2022 Jared Beller
 author:        Jared Beller <jbellerb@vt.edu>
 maintainer:    Jared Beller <jbellerb@vt.edu>
 stability:     alpha
-tested-with:   GHC == 8.10.6
+tested-with:   GHC == 9.2.5
 synopsis:      Personal XMonad configuration
 description:   This is my personal XMonad configuration for use with OpenBSD.
                A majority of the code here is to manage Lemonbar, which is
