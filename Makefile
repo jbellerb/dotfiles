@@ -1,6 +1,6 @@
 .POSIX:
 
-MODULES := fish vim xmonad
+MODULES := dunst fish pywal vim xmonad
 
 .PHONY: all
 all: $(MODULES)
