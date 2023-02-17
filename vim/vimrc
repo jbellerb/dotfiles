@@ -28,5 +28,8 @@ if !has('gui_running')
   set t_Co=256
 endif
 
-colorscheme nord
-let g:lightline = { 'colorscheme': 'nord' }
+set background=dark
+let g:everforest_background = 'hard'
+
+colorscheme everforest
+let g:lightline = {'colorscheme' : 'everforest'}

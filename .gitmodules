@@ -6,4 +6,7 @@
 	url = https://github.com/arcticicestudio/nord-vim
 [submodule "fish/plugins/fenv"]
 	path = fish/plugins/fenv
-	url = https://github.com/oh-my-fish/plugin-foreign-env.git
+	url = https://github.com/oh-my-fish/plugin-foreign-env
+[submodule "vim/packages/everforest"]
+	path = vim/packages/everforest
+	url = https://github.com/sainnhe/everforest
